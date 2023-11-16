@@ -48,13 +48,66 @@ mod my_sort {
     }
 }
 
+mod recursion {
+
+    pub fn cal_len<T>(my_list: &[T]) -> u32 {
+        if my_list.get(0).is_some() {
+            1 + cal_len(&my_list[1..])
+        } else {
+            0
+        }
+    }
+
+    pub fn max(my_list: &[i32]) -> Option<i32> {
+        if let Some(&ci) = my_list.first() {
+            let tr = max(&my_list[1..]);
+            if let Some(v) = tr {
+                if v > ci {
+                    Some(v)
+                } else {
+                    Some(ci)
+                }
+            } else {
+                Some(ci)
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn quick_sort(my_list: &[i32]) -> Vec<i32> {
+        if my_list.len() < 2 {
+            Vec::from(my_list)
+        } else {
+            let mut lvec = Vec::new();
+            let mut rvec = Vec::new();
+            let pivot = 0;
+            let mut idx = pivot + 1;
+            while idx < my_list.len() {
+                let cur_val = my_list[idx];
+                if cur_val < my_list[pivot] {
+                    lvec.push(cur_val);
+                } else {
+                    rvec.push(cur_val);
+                }
+                idx += 1;
+            }
+
+            let mut lv = quick_sort(&lvec);
+            lv.push(my_list[pivot]);
+            lv.append(&mut quick_sort(&rvec));
+            lv
+        }
+    }
+}
+
 fn main() {
     println!("Hello, world!");
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{binary_search, my_sort};
+    use crate::{binary_search, my_sort, recursion};
 
     #[test]
     fn test_bsearch() {
@@ -73,6 +126,31 @@ mod tests {
         my_sort::selection_sort(&mut case);
         assert_eq!(case, vec![0, 2, 2, 3, 3, 11, 26, 33, 43, 66, 202]);
         for v in case.iter() {
+            print!("{v} ");
+        }
+        println!()
+    }
+
+    #[test]
+    fn test_cal_len() {
+        let list = vec![1, 2, 3, 4, 5, 6, 7];
+        assert_eq!(recursion::cal_len(&list), 7);
+    }
+
+    #[test]
+    fn test_max() {
+        let list = vec![1, 2, 3, 4, 5, 6, 7, 6, 10];
+        let test_val = recursion::max(&list).unwrap();
+        assert_eq!(test_val, 10);
+        assert_ne!(test_val, 1);
+    }
+
+    #[test]
+    fn test_quick_sort() {
+        let case = vec![3, 2, 66, 3, 2, 11, 26, 43, 33, 202, 0];
+        let result = recursion::quick_sort(&case);
+        assert_eq!(result, vec![0, 2, 2, 3, 3, 11, 26, 33, 43, 66, 202]);
+        for v in result.iter() {
             print!("{v} ");
         }
         println!()
